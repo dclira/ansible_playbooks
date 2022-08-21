@@ -1,0 +1,48 @@
+---
+hosts: all 
+become: true
+gather_facts: true 
+vars:
+  path_lv05: /dev/mapper/VG00-LV05
+
+tasks:
+
+    - name: Criando LV05 - Openv - Netbackup 
+      lvol:
+        vg: VG00
+        lv: LV05
+        size: 15g
+        active: true 
+    - debug:
+        msg: "Making LV05"
+
+
+    - name: Formating  Filesystem to EXT4
+      filesystem: 
+        fstype: ext4
+        dev: "{{path_lv05}}"
+    - debug:
+        msg: "Formatando LV {{path_lv05}}"
+
+
+    - name: Creating directory openv - Netbackup 
+      file: 
+        path: /usr/openv
+        state: directory 
+        mode: '0755'
+        group: BatchFiliais
+    
+    - name: Mounting  Filesystem 
+      mount:
+        path: /usr/openv 
+        src: '{{path_lv05}}'
+        state: mounted
+        fstype:  ext4 
+        opts: rw, suid, dev,exec, auto, nosuser, async
+    - debug:
+        msg: "Inserindo dados no fstab..."
+
+    - name: Reload  systemd Daemon 
+      systemd:
+        daemon_reload: yes 
+...

@@ -1,0 +1,33 @@
+---
+
+- name: Removendo Service Clienthost - RUB 
+  hosts: all 
+  become: true
+  gather_facts: true 
+  vars:
+    client_sh: /bin/clienthost.sh 
+    client_srv: rub-clienthost.service 
+  tasks:
+
+
+  - name: Removendo Script "{{client_sh}}"
+    file:
+      path: "{{client_sh}}"
+      state: absent
+  - debug: 
+      msg: "{{client_sh}} removido" 
+
+  - name: Removendo Unit  {{client_srv}} in systemd 
+    file:
+      path: /usr/lib/systemd/system/{{client_srv}}
+      state: absent 
+  - debug:
+      msg: "{{client_srv}} Excluded "
+
+  - name: Reload  systemd Daemon 
+    systemd:
+      daemon_reload: yes 
+...
+
+
+...

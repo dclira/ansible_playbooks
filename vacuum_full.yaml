@@ -1,0 +1,44 @@
+---
+
+hosts: all
+become: true 
+tasks:
+
+
+
+  - name: Copiando Script Vaccumm Full Atualizado
+    copy: 
+      src: /home/dclira/vacuum_full_rub.sh
+      dest: /usr/local/bin/
+      mode: 0755
+      owner: root
+      group: root
+      state: present  
+
+
+
+  - name: Adicionando Rotina Vaccum_full - Crontab 
+    cron:
+      name: Vaccum Full RUB 
+      weekday: "0"
+      minute: "00" 
+      hour: "21" 
+      day: "*"
+      month: "*"
+      user: root
+      job: /usr/local/bin/vacuum_full_rub.sh
+    register: rub
+
+  - name: Restart Cron
+    service:
+      name: crond
+      state: restarted
+    when: rub is changed  
+
+
+
+  
+
+
+
+...
